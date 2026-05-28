@@ -20,7 +20,7 @@ EXPIRY_DATE   = "02-06-2026"
 EXPIRY_STR    = "26602"        # Format used in Fyers option symbols
 INTERVAL      = "5"            # 5-minute candles
 STRIKE_STEP   = 100
-LOT_SIZE      = 75             # Nifty lot size
+LOT_SIZE      = 65             # Nifty lot size
 
 # ── View engine ────────────────────────────────────────────────────────────
 # How many strikes above and below ATM to watch
@@ -52,11 +52,11 @@ ADD_POSITION_IST    = (12, 0)    # 12:00 add trigger
 # ── Position sizing (lots per side) ───────────────────────────────────────
 # sell_ce, sell_pe, hedge_ce_buy, hedge_pe_buy
 POSITION_SIZING = {
-    "very_bullish": {"sell_ce": 4,  "sell_pe": 8,  "hedge_ce": 1, "hedge_pe": 2},
-    "bullish":      {"sell_ce": 4,  "sell_pe": 6,  "hedge_ce": 1, "hedge_pe": 2},
-    "neutral":      {"sell_ce": 6,  "sell_pe": 6,  "hedge_ce": 2, "hedge_pe": 2},
-    "bearish":      {"sell_ce": 6,  "sell_pe": 4,  "hedge_ce": 2, "hedge_pe": 1},
-    "very_bearish": {"sell_ce": 8,  "sell_pe": 4,  "hedge_ce": 2, "hedge_pe": 1},
+    "very_bullish": {"sell_ce": 4,  "sell_pe": 8,  "hedge_ce": 4, "hedge_pe": 8},
+    "bullish":      {"sell_ce": 4,  "sell_pe": 6,  "hedge_ce": 4, "hedge_pe": 6},
+    "neutral":      {"sell_ce": 6,  "sell_pe": 6,  "hedge_ce": 6, "hedge_pe": 6},
+    "bearish":      {"sell_ce": 6,  "sell_pe": 4,  "hedge_ce": 6, "hedge_pe": 4},
+    "very_bearish": {"sell_ce": 8,  "sell_pe": 4,  "hedge_ce": 8, "hedge_pe": 4},
 }
 MAX_LOTS_PER_SIDE   = 20
 MAX_TRADES_PER_DAY  = 4
@@ -71,9 +71,9 @@ PROFIT_LOCK_TIERS = [
 ]   # (peak_threshold, floor_fraction) — checked highest first
 
 # ── Risk limits ────────────────────────────────────────────────────────────
-DAILY_LOSS_LIMIT    = -1000      # Stop trading if MTM hits this
-DELTA_SELL_MIN      = 0.10
-DELTA_SELL_MAX      = 0.15
+DAILY_LOSS_LIMIT    = -1500      # Stop trading if MTM hits this
+DELTA_SELL_MIN      = 0.15
+DELTA_SELL_MAX      = 0.25
 HEDGE_STRIKE_OFFSET = 300        # pts further OTM for hedge buy
 
 # ── State / log paths ──────────────────────────────────────────────────────
