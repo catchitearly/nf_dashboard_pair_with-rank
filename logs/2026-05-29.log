@@ -113,3 +113,23 @@
 2026-05-29 04:49:39,088 [ERROR] strategy: Entry failed.
 2026-05-29 04:49:39,089 [INFO] strategy: Run complete.
 2026-05-29 04:49:39,089 [INFO] main: ✓ main.py finished
+2026-05-29 07:29:45,028 [INFO] main: ▶ main.py started
+2026-05-29 07:29:45,330 [INFO] strategy: ============================================================
+2026-05-29 07:29:45,331 [INFO] strategy: Run at 2026-05-29 12:59:45 IST
+2026-05-29 07:29:45,331 [INFO] strategy: Mode: PAPER TRADING
+2026-05-29 07:29:45,331 [INFO] state_manager: State loaded successfully.
+2026-05-29 07:29:45,677 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-05-29 07:29:45,895 [INFO] fyers_data: Spot: 23838.1
+2026-05-29 07:29:46,348 [INFO] fyers_data: Straddle 23800: 45 bars
+2026-05-29 07:29:46,803 [INFO] fyers_data: Straddle 23700: 45 bars
+2026-05-29 07:29:47,255 [INFO] fyers_data: Straddle 23600: 45 bars
+2026-05-29 07:29:47,708 [INFO] fyers_data: Straddle 23500: 45 bars
+2026-05-29 07:29:48,165 [INFO] fyers_data: Straddle 23900: 45 bars
+2026-05-29 07:29:48,619 [INFO] fyers_data: Straddle 24000: 45 bars
+2026-05-29 07:29:49,459 [INFO] fyers_data: Straddle 24100: 45 bars
+2026-05-29 07:29:49,915 [INFO] fyers_data: Straddle 24200: 45 bars
+2026-05-29 07:29:50,367 [INFO] fyers_data: Straddle 24300: 45 bars
+2026-05-29 07:29:50,368 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=0 upper_above=4 | lower_above=0 lower_below=4 | score=-10.5 label=very_bearish
+2026-05-29 07:29:50,368 [INFO] view_engine: Label pending (1/2): current=very_bullish pending=very_bearish
+2026-05-29 07:29:50,368 [INFO] strategy: Run complete.
+2026-05-29 07:29:50,368 [INFO] main: ✓ main.py finished
