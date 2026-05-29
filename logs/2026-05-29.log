@@ -5,3 +5,50 @@
 2026-05-29 03:39:35,204 [ERROR] fyers_data: Fyers auth failed: {'s': 'error', 'code': -8, 'message': 'Your token has expired. Please generate a token'}
 2026-05-29 03:39:35,205 [ERROR] strategy: Could not fetch spot price — aborting cycle.
 2026-05-29 03:39:35,848 [INFO] main: ✓ main.py finished
+2026-05-29 03:42:01,982 [INFO] main: ▶ main.py started
+2026-05-29 03:42:02,294 [INFO] strategy: ============================================================
+2026-05-29 03:42:02,294 [INFO] strategy: Run at 2026-05-29 09:12:02 IST
+2026-05-29 03:42:02,294 [INFO] state_manager: State loaded successfully.
+2026-05-29 03:42:02,667 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-05-29 03:42:02,929 [INFO] fyers_data: Spot: 23902.15
+2026-05-29 03:42:03,184 [WARNING] fyers_data: No candles for NSE:NIFTY50-INDEX: 
+2026-05-29 03:42:03,184 [INFO] strategy: ATM fixed at 23900
+2026-05-29 03:42:03,978 [WARNING] fyers_data: No candles for NSE:NIFTY2660223800CE: 
+2026-05-29 03:42:04,232 [WARNING] fyers_data: No candles for NSE:NIFTY2660223800PE: 
+2026-05-29 03:42:04,232 [WARNING] fyers_data: Missing candles for straddle 23800
+2026-05-29 03:42:04,232 [WARNING] fyers_data: Straddle candles failed for 23800
+2026-05-29 03:42:04,489 [WARNING] fyers_data: No candles for NSE:NIFTY2660223700CE: 
+2026-05-29 03:42:04,740 [WARNING] fyers_data: No candles for NSE:NIFTY2660223700PE: 
+2026-05-29 03:42:04,740 [WARNING] fyers_data: Missing candles for straddle 23700
+2026-05-29 03:42:04,740 [WARNING] fyers_data: Straddle candles failed for 23700
+2026-05-29 03:42:05,001 [WARNING] fyers_data: No candles for NSE:NIFTY2660223600CE: 
+2026-05-29 03:42:05,257 [WARNING] fyers_data: No candles for NSE:NIFTY2660223600PE: 
+2026-05-29 03:42:05,257 [WARNING] fyers_data: Missing candles for straddle 23600
+2026-05-29 03:42:05,257 [WARNING] fyers_data: Straddle candles failed for 23600
+2026-05-29 03:42:05,514 [WARNING] fyers_data: No candles for NSE:NIFTY2660223500CE: 
+2026-05-29 03:42:05,770 [WARNING] fyers_data: No candles for NSE:NIFTY2660223500PE: 
+2026-05-29 03:42:05,770 [WARNING] fyers_data: Missing candles for straddle 23500
+2026-05-29 03:42:05,770 [WARNING] fyers_data: Straddle candles failed for 23500
+2026-05-29 03:42:06,030 [WARNING] fyers_data: No candles for NSE:NIFTY2660223900CE: 
+2026-05-29 03:42:06,294 [WARNING] fyers_data: No candles for NSE:NIFTY2660223900PE: 
+2026-05-29 03:42:06,294 [WARNING] fyers_data: Missing candles for straddle 23900
+2026-05-29 03:42:06,294 [WARNING] fyers_data: Straddle candles failed for 23900
+2026-05-29 03:42:06,553 [WARNING] fyers_data: No candles for NSE:NIFTY2660224000CE: 
+2026-05-29 03:42:06,805 [WARNING] fyers_data: No candles for NSE:NIFTY2660224000PE: 
+2026-05-29 03:42:06,805 [WARNING] fyers_data: Missing candles for straddle 24000
+2026-05-29 03:42:06,805 [WARNING] fyers_data: Straddle candles failed for 24000
+2026-05-29 03:42:07,062 [WARNING] fyers_data: No candles for NSE:NIFTY2660224100CE: 
+2026-05-29 03:42:07,311 [WARNING] fyers_data: No candles for NSE:NIFTY2660224100PE: 
+2026-05-29 03:42:07,311 [WARNING] fyers_data: Missing candles for straddle 24100
+2026-05-29 03:42:07,311 [WARNING] fyers_data: Straddle candles failed for 24100
+2026-05-29 03:42:07,576 [WARNING] fyers_data: No candles for NSE:NIFTY2660224200CE: 
+2026-05-29 03:42:07,898 [WARNING] fyers_data: No candles for NSE:NIFTY2660224200PE: 
+2026-05-29 03:42:07,898 [WARNING] fyers_data: Missing candles for straddle 24200
+2026-05-29 03:42:07,898 [WARNING] fyers_data: Straddle candles failed for 24200
+2026-05-29 03:42:08,152 [WARNING] fyers_data: No candles for NSE:NIFTY2660224300CE: 
+2026-05-29 03:42:08,408 [WARNING] fyers_data: No candles for NSE:NIFTY2660224300PE: 
+2026-05-29 03:42:08,408 [WARNING] fyers_data: Missing candles for straddle 24300
+2026-05-29 03:42:08,408 [WARNING] fyers_data: Straddle candles failed for 24300
+2026-05-29 03:42:08,408 [ERROR] fyers_data: Too many straddle failures (9/9)
+2026-05-29 03:42:08,408 [ERROR] strategy: Straddle candles fetch failed — aborting cycle.
+2026-05-29 03:42:08,409 [INFO] main: ✓ main.py finished
