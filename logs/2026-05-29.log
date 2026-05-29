@@ -52,3 +52,21 @@
 2026-05-29 03:42:08,408 [ERROR] fyers_data: Too many straddle failures (9/9)
 2026-05-29 03:42:08,408 [ERROR] strategy: Straddle candles fetch failed — aborting cycle.
 2026-05-29 03:42:08,409 [INFO] main: ✓ main.py finished
+2026-05-29 04:28:11,320 [INFO] main: ▶ main.py started
+2026-05-29 04:28:11,952 [INFO] strategy: ============================================================
+2026-05-29 04:28:11,952 [INFO] strategy: Run at 2026-05-29 09:58:11 IST
+2026-05-29 04:28:11,952 [INFO] state_manager: State loaded successfully.
+2026-05-29 04:28:12,307 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-05-29 04:28:12,529 [INFO] fyers_data: Spot: 23896.6
+2026-05-29 04:28:13,158 [INFO] fyers_data: Straddle 23800: 9 bars
+2026-05-29 04:28:13,618 [INFO] fyers_data: Straddle 23700: 9 bars
+2026-05-29 04:28:14,062 [INFO] fyers_data: Straddle 23600: 9 bars
+2026-05-29 04:28:14,510 [INFO] fyers_data: Straddle 23500: 9 bars
+2026-05-29 04:28:14,955 [INFO] fyers_data: Straddle 23900: 9 bars
+2026-05-29 04:28:15,396 [INFO] fyers_data: Straddle 24000: 9 bars
+2026-05-29 04:28:15,855 [INFO] fyers_data: Straddle 24100: 9 bars
+2026-05-29 04:28:16,296 [INFO] fyers_data: Straddle 24200: 9 bars
+2026-05-29 04:28:16,740 [INFO] fyers_data: Straddle 24300: 9 bars
+2026-05-29 04:28:16,740 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=0 upper_above=4 | lower_above=0 lower_below=4 | score=-10.5 label=very_bearish
+2026-05-29 04:28:16,740 [INFO] view_engine: Label pending (1/2): current=None pending=very_bearish
+2026-05-29 04:28:16,740 [INFO] main: ✓ main.py finished
