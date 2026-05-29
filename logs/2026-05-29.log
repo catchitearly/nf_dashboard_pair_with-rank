@@ -88,3 +88,28 @@
 2026-05-29 04:38:46,330 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
 2026-05-29 04:38:46,330 [INFO] view_engine: Label pending (1/2): current=None pending=very_bullish
 2026-05-29 04:38:46,330 [INFO] main: ✓ main.py finished
+2026-05-29 04:49:32,741 [INFO] main: ▶ main.py started
+2026-05-29 04:49:33,054 [INFO] strategy: ============================================================
+2026-05-29 04:49:33,054 [INFO] strategy: Run at 2026-05-29 10:19:33 IST
+2026-05-29 04:49:33,054 [INFO] state_manager: State loaded successfully.
+2026-05-29 04:49:33,388 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-05-29 04:49:34,045 [INFO] fyers_data: Spot: 23936.5
+2026-05-29 04:49:34,534 [INFO] fyers_data: Straddle 23800: 13 bars
+2026-05-29 04:49:34,988 [INFO] fyers_data: Straddle 23700: 13 bars
+2026-05-29 04:49:35,436 [INFO] fyers_data: Straddle 23600: 13 bars
+2026-05-29 04:49:35,906 [INFO] fyers_data: Straddle 23500: 13 bars
+2026-05-29 04:49:36,365 [INFO] fyers_data: Straddle 23900: 13 bars
+2026-05-29 04:49:36,823 [INFO] fyers_data: Straddle 24000: 13 bars
+2026-05-29 04:49:37,282 [INFO] fyers_data: Straddle 24100: 13 bars
+2026-05-29 04:49:37,735 [INFO] fyers_data: Straddle 24200: 13 bars
+2026-05-29 04:49:38,186 [INFO] fyers_data: Straddle 24300: 13 bars
+2026-05-29 04:49:38,186 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-05-29 04:49:38,186 [INFO] view_engine: Label confirmed: None → very_bullish
+2026-05-29 04:49:38,186 [INFO] strategy: Entry signal: label=very_bullish score=+11.5
+2026-05-29 04:49:38,412 [INFO] fyers_data: Selected CE 24200 | delta=0.260 ltp=52.55 dist=300pts
+2026-05-29 04:49:38,630 [INFO] fyers_data: Selected PE 23700 | delta=0.254 ltp=40.5 dist=200pts
+2026-05-29 04:49:39,088 [ERROR] position_manager: Order failed: {'code': -50, 'message': 'Request rejected: Order placement restricted. Algo orders are not allowed from this app YL3ZMIGQ7A-100', 's': 'error'}
+2026-05-29 04:49:39,088 [ERROR] position_manager: Entry leg failed: NSE:NIFTY2660224200CE — rolling back
+2026-05-29 04:49:39,088 [ERROR] strategy: Entry failed.
+2026-05-29 04:49:39,089 [INFO] strategy: Run complete.
+2026-05-29 04:49:39,089 [INFO] main: ✓ main.py finished
