@@ -1,0 +1,200 @@
+# ============================================================
+# token_refresh.yml
+# Refreshes the Fyers access token daily at 08:45 IST
+# (08:45 IST = 03:15 UTC) — 30 minutes before market open.
+#
+# How Fyers token refresh works:
+#   1. You log in once via browser to get a refresh_token
+#      (valid for several days / until revoked).
+#   2. This workflow uses the refresh_token to generate a new
+#      access_token each morning via Fyers API.
+#   3. The new access_token is stored back as a GitHub secret
+#      so live_trading.yml can use it.
+#
+# SECRETS REQUIRED:
+#   FYERS_CLIENT_ID       App client ID
+#   FYERS_SECRET_KEY      App secret key (from Fyers API dashboard)
+#   FYERS_REFRESH_TOKEN   Long-lived refresh token (set once manually)
+#   GH_PAT                GitHub Personal Access Token with secrets:write
+#                         scope — needed to update FYERS_ACCESS_TOKEN secret
+#   TELEGRAM_BOT_TOKEN    For success/failure alerts
+#   TELEGRAM_CHAT_ID      Your chat ID
+#
+# HOW TO GET FYERS_REFRESH_TOKEN (one-time setup):
+#   Run token_generator.py locally (see below) and paste the
+#   resulting refresh_token into GitHub Secrets.
+# ============================================================
+
+name: Token Refresh
+
+on:
+  # Daily at 08:45 IST = 03:15 UTC
+  schedule:
+    - cron: '15 3 * * 1-5'     # Mon–Fri only
+
+  # Manual trigger (use when token has expired / first setup)
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    name: Refresh Fyers access token
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install requests fyers-apiv3
+
+      # ── Generate new access token ─────────────────────────
+      - name: Generate access token
+        id: generate_token
+        env:
+          FYERS_CLIENT_ID:      ${{ secrets.FYERS_CLIENT_ID }}
+          FYERS_SECRET_KEY:     ${{ secrets.FYERS_SECRET_KEY }}
+          FYERS_REFRESH_TOKEN:  ${{ secrets.FYERS_REFRESH_TOKEN }}
+        run: |
+          python - << 'PYEOF'
+          import os, sys, json, hashlib, requests
+
+          client_id     = os.environ["FYERS_CLIENT_ID"]
+          secret_key    = os.environ["FYERS_SECRET_KEY"]
+          refresh_token = os.environ["FYERS_REFRESH_TOKEN"]
+
+          # Fyers token validation endpoint
+          # POST https://api-t1.fyers.in/api/v3/validate-refresh-token
+          app_id_hash = hashlib.sha256(
+              f"{client_id}:{secret_key}".encode()
+          ).hexdigest()
+
+          payload = {
+              "grant_type":    "refresh_token",
+              "appIdHash":     app_id_hash,
+              "refresh_token": refresh_token,
+              "pin":           "",          # set if you use a PIN
+          }
+
+          resp = requests.post(
+              "https://api-t1.fyers.in/api/v3/validate-refresh-token",
+              json=payload,
+              timeout=15,
+          )
+          data = resp.json()
+
+          if data.get("s") != "ok" or not data.get("access_token"):
+              print(f"Token refresh failed: {data}", file=sys.stderr)
+              sys.exit(1)
+
+          access_token = data["access_token"]
+          # Write to file so next step can read it
+          with open("new_access_token.txt", "w") as f:
+              f.write(access_token)
+
+          print(f"Token refreshed successfully (len={len(access_token)})")
+          PYEOF
+
+      # ── Update GitHub secret ──────────────────────────────
+      # Uses GitHub REST API to update FYERS_ACCESS_TOKEN secret.
+      # Requires GH_PAT with repo + secrets:write scope.
+      - name: Update FYERS_ACCESS_TOKEN secret
+        env:
+          GH_PAT:    ${{ secrets.GH_PAT }}
+          REPO:      ${{ github.repository }}
+        run: |
+          python - << 'PYEOF'
+          import os, sys, json, base64, requests
+          from base64 import b64encode
+
+          pat      = os.environ["GH_PAT"]
+          repo     = os.environ["REPO"]
+          token    = open("new_access_token.txt").read().strip()
+
+          headers = {
+              "Authorization": f"token {pat}",
+              "Accept":        "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+          }
+
+          # Step 1: Get repo public key for secret encryption
+          key_resp = requests.get(
+              f"https://api.github.com/repos/{repo}/actions/secrets/public-key",
+              headers=headers, timeout=10,
+          )
+          key_data  = key_resp.json()
+          pub_key   = key_data["key"]
+          key_id    = key_data["key_id"]
+
+          # Step 2: Encrypt secret with libsodium (PyNaCl)
+          try:
+              from nacl import encoding, public
+          except ImportError:
+              import subprocess
+              subprocess.run([sys.executable, "-m", "pip", "install", "PyNaCl", "-q"], check=True)
+              from nacl import encoding, public
+
+          pub_key_bytes = base64.b64decode(pub_key)
+          sealed_box    = public.SealedBox(public.PublicKey(pub_key_bytes))
+          encrypted     = sealed_box.encrypt(token.encode("utf-8"))
+          encrypted_b64 = base64.b64encode(encrypted).decode("utf-8")
+
+          # Step 3: PUT updated secret
+          put_resp = requests.put(
+              f"https://api.github.com/repos/{repo}/actions/secrets/FYERS_ACCESS_TOKEN",
+              headers=headers,
+              json={"encrypted_value": encrypted_b64, "key_id": key_id},
+              timeout=10,
+          )
+          if put_resp.status_code in (201, 204):
+              print("FYERS_ACCESS_TOKEN secret updated successfully.")
+          else:
+              print(f"Secret update failed: {put_resp.status_code} {put_resp.text}", file=sys.stderr)
+              sys.exit(1)
+          PYEOF
+
+      # ── Clean up token file ───────────────────────────────
+      - name: Remove token file
+        if: always()
+        run: rm -f new_access_token.txt
+
+      # ── Telegram alert ────────────────────────────────────
+      - name: Notify success
+        if: success()
+        run: |
+          python - << 'PYEOF'
+          import urllib.request, urllib.parse, os, json
+          bot   = os.environ.get("TELEGRAM_BOT_TOKEN","")
+          chat  = os.environ.get("TELEGRAM_CHAT_ID","")
+          if not bot or not chat: exit()
+          msg   = "🔑 Fyers token refreshed successfully. Trading ready."
+          data  = urllib.parse.urlencode({"chat_id":chat,"text":msg}).encode()
+          urllib.request.urlopen(f"https://api.telegram.org/bot{bot}/sendMessage",data,timeout=5)
+          PYEOF
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          python - << 'PYEOF'
+          import urllib.request, urllib.parse, os
+          bot   = os.environ.get("TELEGRAM_BOT_TOKEN","")
+          chat  = os.environ.get("TELEGRAM_CHAT_ID","")
+          if not bot or not chat: exit()
+          msg   = "❌ Fyers token refresh FAILED. Trading will not run today. Check GitHub Actions."
+          data  = urllib.parse.urlencode({"chat_id":chat,"text":msg}).encode()
+          urllib.request.urlopen(f"https://api.telegram.org/bot{bot}/sendMessage",data,timeout=5)
+          PYEOF
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}

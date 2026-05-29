@@ -1,0 +1,131 @@
+# ============================================================
+# live_trading.yml
+# Runs the trading bot every 5 minutes on weekdays during
+# market hours (09:40–14:35 IST).
+#
+# STATE PERSISTENCE:
+#   After each run, state/trading_state.json and logs/ are
+#   git-committed back to the repo. The next run checks out
+#   the latest commit, so it always reads the freshest state.
+#
+# RACE CONDITION GUARD:
+#   concurrency.cancel-in-progress: false  — if a run is
+#   already executing, the new trigger is QUEUED (not dropped)
+#   so no tick is ever skipped.
+#   The push step does git pull --rebase before pushing to
+#   handle the case where two runs committed simultaneously.
+#
+# SECRETS REQUIRED (Settings → Secrets → Actions):
+#   FYERS_CLIENT_ID       Fyers app client ID
+#   FYERS_ACCESS_TOKEN    Daily access token (update each morning)
+#   TELEGRAM_BOT_TOKEN    From @BotFather
+#   TELEGRAM_CHAT_ID      Your chat or channel ID
+# ============================================================
+
+name: Live Trading
+
+on:
+  # ── Scheduled runs ───────────────────────────────────────
+  # Every 5 min, Mon–Fri, 09:40–14:35 IST
+  # IST = UTC+5:30  →  09:40 IST = 04:10 UTC  |  14:35 IST = 09:05 UTC
+  schedule:
+    - cron: '10,15,20,25,30,35,40,45,50,55 4 * * 1-5'   # 09:40–09:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 5 * * 1-5'  # 10:00–10:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 6 * * 1-5'  # 11:00–11:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 7 * * 1-5'  # 12:00–12:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 8 * * 1-5'  # 13:00–13:55 IST
+    - cron: '0,5 9 * * 1-5'                                  # 14:30–14:35 IST (force exit window)
+
+  # ── Manual trigger ────────────────────────────────────────
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'manual'
+
+# ── Concurrency guard ─────────────────────────────────────
+# Only one live-trading job runs at a time per day.
+# If a new trigger arrives while one is running, it WAITS
+# (cancel-in-progress: false) — we never want to drop a tick.
+concurrency:
+  group: live-trading-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trade:
+    name: Run trading cycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 4          # hard kill after 4 min — each cycle should take < 60s
+
+    permissions:
+      contents: write           # needed to git-push state back
+
+    steps:
+      # ── 1. Checkout latest state ──────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # Use PAT if available (allows pushing back to protected branches).
+          # Falls back to GITHUB_TOKEN for public/unprotected repos.
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python ─────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # ── 3. Dependencies ───────────────────────────────────
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Run one trading cycle ──────────────────────────
+      - name: Run trading cycle
+        id: trading
+        env:
+          FYERS_CLIENT_ID:    ${{ secrets.FYERS_CLIENT_ID }}
+          FYERS_ACCESS_TOKEN: ${{ secrets.FYERS_ACCESS_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
+
+      # ── 5. Commit state + logs back to repo ───────────────
+      # Runs even if the trading step fails — we always want
+      # the latest state (including any partial writes) saved.
+      - name: Commit state and logs
+        if: always()
+        run: |
+          git config user.name  "trading-bot[bot]"
+          git config user.email "trading-bot@noreply.github.com"
+
+          git add state/ logs/ 2>/dev/null || true
+
+          # Nothing changed → skip commit
+          if git diff --cached --quiet; then
+            echo "No state changes to commit."
+            exit 0
+          fi
+
+          git commit -m "state: run #${{ github.run_number }} $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+
+          # Pull --rebase handles the case where another run pushed
+          # between our checkout and now. Retry up to 3 times.
+          for attempt in 1 2 3; do
+            git pull --rebase origin ${{ github.ref_name }} && \
+            git push origin ${{ github.ref_name }} && \
+            echo "Push succeeded on attempt $attempt." && break || \
+            echo "Push failed (attempt $attempt), retrying in 5s..." && sleep 5
+          done
+
+      # ── 6. Upload logs as artifact ────────────────────────
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trading-logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 14
+          if-no-files-found: ignore

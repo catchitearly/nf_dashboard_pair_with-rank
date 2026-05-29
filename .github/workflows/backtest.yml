@@ -1,0 +1,89 @@
+# ============================================================
+# backtest.yml
+# Manual-only workflow to run the backtester.
+#
+# Inputs:
+#   date      - YYYY-MM-DD to backtest a single day, or
+#               "all" to run all available historical dates
+#
+# No secrets needed — backtest uses only local historical data.
+# Results are printed to the job log AND uploaded as artifact.
+#
+# Usage:
+#   GitHub → Actions → Backtest → Run workflow
+#   Fill in date: "2026-05-25" or "all"
+# ============================================================
+
+name: Backtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Date to backtest (YYYY-MM-DD) or "all" for all dates'
+        required: true
+        default: 'all'
+      verbose:
+        description: 'Show full tick-by-tick log (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  backtest:
+    name: Run backtest — ${{ github.event.inputs.date }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ── 2. Python ─────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # ── 3. Dependencies ───────────────────────────────────
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Run backtest ───────────────────────────────────
+      - name: Run backtest
+        id: backtest
+        env:
+          BACKTEST_VERBOSE: ${{ github.event.inputs.verbose }}
+        run: |
+          DATE="${{ github.event.inputs.date }}"
+          if [ "$DATE" = "all" ]; then
+            python main.py --backtest 2>&1 | tee backtest_results.txt
+          else
+            python main.py --backtest --date "$DATE" 2>&1 | tee backtest_results.txt
+          fi
+
+      # ── 5. Print summary to job summary ───────────────────
+      - name: Write job summary
+        if: always()
+        run: |
+          echo '## Backtest Results — `${{ github.event.inputs.date }}`' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          # Extract just the summary table (lines with ===, dates, TOTAL)
+          grep -E '(={3,}|Date|TOTAL|2026-|Strategy|Entry|Peak|Exit|Events|RESULT|\[)' \
+            backtest_results.txt >> $GITHUB_STEP_SUMMARY || \
+          cat backtest_results.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      # ── 6. Upload full results ────────────────────────────
+      - name: Upload backtest results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-${{ github.event.inputs.date }}-${{ github.run_number }}
+          path: backtest_results.txt
+          retention-days: 30
+          if-no-files-found: ignore
