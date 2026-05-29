@@ -176,9 +176,22 @@ def compute_mtm(state: dict) -> float:
     Compute live MTM P&L for all open positions.
     MTM = sum over sell legs: (entry_ltp - current_ltp) * lots * LOT_SIZE
         + sum over hedge legs: (current_ltp - entry_ltp) * lots * LOT_SIZE
+    In test/backtest mode: returns injected MTM directly (real observed values).
     Returns 0.0 if no positions.
     """
     try:
+        # ── Test mode: use injected actual MTM from logs ─────────────────
+        try:
+            import test_mode
+            if test_mode.is_active():
+                injected = test_mode.get_injected_mtm()
+                if injected is not None and state.get("positions"):
+                    total = injected + state.get("closed_pnl", 0.0)
+                    log.info(f"MTM P&L: ₹{total:,.0f}")
+                    return round(total, 2)
+        except ImportError:
+            pass
+
         positions = state.get("positions", [])
         if not positions:
             return 0.0
