@@ -44,29 +44,45 @@ def _place_order(
     order_type: int = 2,   # 2 = market
 ) -> dict | None:
     """
-    Place a Fyers order. Returns order response dict or None.
-    In dry-run (no credentials) → logs and returns mock response.
-    """
-    from config import FYERS_CLIENT_ID, FYERS_ACCESS_TOKEN
-    dry_run = not FYERS_CLIENT_ID or not FYERS_ACCESS_TOKEN
+    Place an order. Behaviour depends on mode:
 
+    PAPER_TRADING = True  → No real order. Fetches live LTP as simulated fill
+                            price and returns a mock response. Full market data
+                            is still used for MTM.
+    PAPER_TRADING = False → Real Fyers order placed.
+    Dry-run (no creds)    → Logs only, no API call, fill price = 0.
+    """
+    from config import PAPER_TRADING, FYERS_CLIENT_ID, FYERS_ACCESS_TOKEN
+
+    action = "BUY" if side == 1 else "SELL"
+
+    # ── Paper trading ────────────────────────────────────────────────────
+    if PAPER_TRADING:
+        fill_ltp = _get_ltp(symbol)
+        log.info(
+            f"[PAPER] {action} {symbol} qty={qty} "
+            f"fill=₹{fill_ltp:.2f}"
+        )
+        return {"s": "ok", "id": f"PAPER-{symbol}", "paper": True, "fill_ltp": fill_ltp}
+
+    # ── Dry-run (no credentials configured) ─────────────────────────────
+    if not FYERS_CLIENT_ID or not FYERS_ACCESS_TOKEN:
+        log.info(f"[DRY-RUN] {action} {symbol} qty={qty}")
+        return {"s": "ok", "id": "DRY-RUN", "dry_run": True}
+
+    # ── Live trading ─────────────────────────────────────────────────────
     payload = {
-        "symbol":      symbol,
-        "qty":         qty,
-        "type":        order_type,
-        "side":        side,
-        "productType": "INTRADAY",
-        "limitPrice":  0,
-        "stopPrice":   0,
-        "validity":    "DAY",
+        "symbol":       symbol,
+        "qty":          qty,
+        "type":         order_type,
+        "side":         side,
+        "productType":  "INTRADAY",
+        "limitPrice":   0,
+        "stopPrice":    0,
+        "validity":     "DAY",
         "disclosedQty": 0,
         "offlineOrder": False,
     }
-
-    if dry_run:
-        log.info(f"[DRY-RUN] Order: {symbol} side={'BUY' if side==1 else 'SELL'} qty={qty}")
-        return {"s": "ok", "id": "DRY-RUN", "dry_run": True}
-
     try:
         fyers = fd.get_fyers()
         if fyers is None:
@@ -76,7 +92,7 @@ def _place_order(
         if resp.get("s") != "ok":
             log.error(f"Order failed: {resp}")
             return None
-        log.info(f"Order placed: {symbol} {'BUY' if side==1 else 'SELL'} {qty} → {resp.get('id')}")
+        log.info(f"Order placed: {symbol} {action} {qty} → id={resp.get('id')}")
         return resp
     except Exception as e:
         log.error(f"_place_order error ({symbol}): {e}")
@@ -124,31 +140,33 @@ def open_entry(state: dict, label: str, spot: float, atm: int) -> bool:
         pe_hedge_strike = pe_sell_strike - HEDGE_STRIKE_OFFSET
 
         legs_to_open = [
-            (ce_sell_strike,  "CE", "sell", sell_ce_lots,  -1),
-            (pe_sell_strike,  "PE", "sell", sell_pe_lots,  -1),
-            (ce_hedge_strike, "CE", "hedge", hedge_ce_lots, 1),
-            (pe_hedge_strike, "PE", "hedge", hedge_pe_lots, 1),
+            (ce_sell_strike,  "CE", "sell",  sell_ce_lots,   -1),
+            (pe_sell_strike,  "PE", "sell",  sell_pe_lots,   -1),
+            (ce_hedge_strike, "CE", "hedge", hedge_ce_lots,   1),
+            (pe_hedge_strike, "PE", "hedge", hedge_pe_lots,   1),
         ]
 
         opened = []
         for strike, opt_type, role, lots, side in legs_to_open:
             sym = fd.option_symbol(strike, opt_type)
-            ltp = _get_ltp(sym)
             qty = lots * LOT_SIZE
+            # Fetch LTP before order so we have it even if resp lacks fill_ltp
+            ltp  = _get_ltp(sym)
             resp = _place_order(sym, side, qty)
             if resp is None:
                 log.error(f"Entry leg failed: {sym} — rolling back")
-                # Attempt to close already-opened legs
                 for prev_leg in opened:
                     _close_leg(prev_leg, reason="rollback")
                 return False
+            # Paper mode returns real fill price in response
+            fill_ltp = resp.get("fill_ltp", ltp)
             leg = {
                 "symbol":    sym,
                 "strike":    strike,
                 "opt_type":  opt_type,
                 "side":      "sell" if side == -1 else "buy",
                 "lots":      lots,
-                "entry_ltp": ltp,
+                "entry_ltp": fill_ltp,
                 "role":      role,
             }
             sm.add_leg(state, leg)
@@ -226,13 +244,20 @@ def compute_mtm(state: dict) -> float:
 # ── Close helpers ────────────────────────────────────────────────────────────
 
 def _close_leg(leg: dict, reason: str = "") -> float:
-    """Close a single leg. Returns realised P&L contribution."""
+    """
+    Close a single leg. Returns realised P&L contribution.
+    In paper/live mode: fetches current LTP as exit price before placing order.
+    """
     try:
         sym  = leg["symbol"]
         qty  = leg["lots"] * LOT_SIZE
-        side = 1 if leg["side"] == "sell" else -1   # reverse side to close
+        side = 1 if leg["side"] == "sell" else -1   # reverse to close
 
-        ltp  = _get_ltp(sym)
+        # Always fetch real LTP for accurate P&L (paper and live)
+        ltp = _get_ltp(sym)
+        if ltp == 0.0:
+            # Fall back to entry price so P&L = 0 rather than misleading
+            ltp = leg.get("entry_ltp", 0.0)
         leg["exit_ltp"] = ltp
 
         resp = _place_order(sym, side, qty)
@@ -241,7 +266,12 @@ def _close_leg(leg: dict, reason: str = "") -> float:
             return 0.0
 
         pnl = sm._leg_realised_pnl(leg)
-        log.info(f"Closed leg {sym} {reason} | lots={leg['lots']} pnl=₹{pnl:.0f}")
+        mode = "[PAPER]" if resp.get("paper") else ""
+        log.info(
+            f"{mode} Closed {leg['side']} {sym} {reason} | "
+            f"lots={leg['lots']} entry=₹{leg.get('entry_ltp',0):.2f} "
+            f"exit=₹{ltp:.2f} pnl=₹{pnl:.0f}"
+        )
         return pnl
 
     except Exception as e:

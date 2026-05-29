@@ -116,7 +116,7 @@ def run_backtest_date(date_str: str) -> BacktestResult:
     Run the full strategy against one day of historical data.
     Returns a BacktestResult.
     """
-    from backtest_data import HISTORICAL_DATA, ATM_BY_DATE
+    from backtest_data import HISTORICAL_DATA, ATM_BY_DATE, AVAILABLE_DATES
     import state_manager as sm
     import test_mode
     import strategy
@@ -125,7 +125,16 @@ def run_backtest_date(date_str: str) -> BacktestResult:
 
     snaps = HISTORICAL_DATA.get(date_str)
     if not snaps:
-        log.error(f"No data for {date_str}")
+        log.error(
+            f"No historical data for {date_str}. "
+            f"Available dates: {', '.join(AVAILABLE_DATES)}. "
+            f"To add data, add an entry to backtest_data.HISTORICAL_DATA."
+        )
+        print(
+            f"\n  ⚠️  No data found for {date_str}\n"
+            f"  Available dates: {', '.join(AVAILABLE_DATES)}\n"
+            f"  Add new dates to backtest_data.py → HISTORICAL_DATA dict.\n"
+        )
         return result
 
     # Get actual final P&L from last snapshot

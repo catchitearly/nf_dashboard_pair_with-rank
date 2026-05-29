@@ -2,6 +2,8 @@
 notifier.py
 Telegram notification layer.
 All functions are fire-and-forget — never raise to caller.
+In PAPER_TRADING mode every message is prefixed with [PAPER] so you
+always know these are simulated trades.
 """
 
 import logging
@@ -9,9 +11,11 @@ import urllib.request
 import urllib.parse
 import json
 
-from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, PAPER_TRADING
 
 log = logging.getLogger(__name__)
+
+_MODE = "📋 PAPER" if PAPER_TRADING else "🔴 LIVE"
 
 
 def _send(message: str) -> bool:
@@ -41,7 +45,7 @@ def _send(message: str) -> bool:
 def alert_entry(label: str, ce_strike: int, ce_lots: int, pe_strike: int, pe_lots: int,
                 ce_hedge: int, pe_hedge: int, spot: float) -> None:
     msg = (
-        f"🟢 <b>ENTRY</b>\n"
+        f"{_MODE} 🟢 <b>ENTRY</b>\n"
         f"Label: <b>{label.upper()}</b> | Spot: {spot:.0f}\n"
         f"Sell CE {ce_strike} × {ce_lots}L | Sell PE {pe_strike} × {pe_lots}L\n"
         f"Hedge CE {ce_strike+300} × {ce_hedge}L | Hedge PE {pe_strike-300} × {pe_hedge}L"
@@ -52,7 +56,7 @@ def alert_entry(label: str, ce_strike: int, ce_lots: int, pe_strike: int, pe_lot
 def alert_exit(reason: str, pnl: float, peak_mtm: float) -> None:
     emoji = "✅" if pnl >= 0 else "🔴"
     msg   = (
-        f"{emoji} <b>EXIT</b> — {reason}\n"
+        f"{_MODE} {emoji} <b>EXIT</b> — {reason}\n"
         f"P&amp;L: ₹{pnl:,.0f} | Peak was: ₹{peak_mtm:,.0f}"
     )
     _send(msg)
@@ -60,7 +64,7 @@ def alert_exit(reason: str, pnl: float, peak_mtm: float) -> None:
 
 def alert_profit_floor_set(peak: float, floor: float) -> None:
     msg = (
-        f"🔒 <b>Profit Floor Set</b>\n"
+        f"{_MODE} 🔒 <b>Profit Floor Set</b>\n"
         f"Peak: ₹{peak:,.0f} → Floor: ₹{floor:,.0f}"
     )
     _send(msg)
@@ -68,7 +72,7 @@ def alert_profit_floor_set(peak: float, floor: float) -> None:
 
 def alert_profit_floor_hit(mtm: float, floor: float) -> None:
     msg = (
-        f"⚠️ <b>Profit Floor HIT → Exiting</b>\n"
+        f"{_MODE} ⚠️ <b>Profit Floor HIT → Exiting</b>\n"
         f"Current MTM: ₹{mtm:,.0f} | Floor: ₹{floor:,.0f}"
     )
     _send(msg)
@@ -76,7 +80,7 @@ def alert_profit_floor_hit(mtm: float, floor: float) -> None:
 
 def alert_rebalance(old_label: str, new_label: str, score: float) -> None:
     msg = (
-        f"♻️ <b>Rebalance</b>\n"
+        f"{_MODE} ♻️ <b>Rebalance</b>\n"
         f"Label: {old_label} → <b>{new_label}</b> (score {score:+.1f})"
     )
     _send(msg)
@@ -84,7 +88,7 @@ def alert_rebalance(old_label: str, new_label: str, score: float) -> None:
 
 def alert_daily_loss_limit(mtm: float) -> None:
     msg = (
-        f"🛑 <b>Daily Loss Limit Hit</b>\n"
+        f"{_MODE} 🛑 <b>Daily Loss Limit Hit</b>\n"
         f"MTM: ₹{mtm:,.0f} — trading stopped for today."
     )
     _send(msg)
@@ -92,7 +96,7 @@ def alert_daily_loss_limit(mtm: float) -> None:
 
 def alert_emergency_exit(label: str, score: float, leg_type: str) -> None:
     msg = (
-        f"🚨 <b>Emergency Exit</b>\n"
+        f"{_MODE} 🚨 <b>Emergency Exit</b>\n"
         f"Entry={label} | Score={score:+.1f} | Closing {leg_type} leg"
     )
     _send(msg)
@@ -101,14 +105,36 @@ def alert_emergency_exit(label: str, score: float, leg_type: str) -> None:
 def alert_view(score: float, label: str, mtm: float) -> None:
     emoji = {
         "very_bullish": "🚀", "bullish": "📈",
-        "neutral": "➡️", "bearish": "📉", "very_bearish": "💥"
+        "neutral": "➡️",  "bearish": "📉", "very_bearish": "💥"
     }.get(label, "❓")
     msg = (
-        f"{emoji} Score: {score:+.1f} | {label} | MTM: ₹{mtm:,.0f}"
+        f"{_MODE} {emoji} Score: {score:+.1f} | {label} | MTM: ₹{mtm:,.0f}"
     )
     _send(msg)
 
 
 def alert_error(context: str, error: str) -> None:
-    msg = f"❌ <b>Error</b> in {context}\n{error[:200]}"
+    msg = f"{_MODE} ❌ <b>Error</b> in {context}\n{error[:200]}"
+    _send(msg)
+
+
+def alert_startup(mode: str, atm: int = 0) -> None:
+    """Send on each run start so you know the bot is alive."""
+    msg = (
+        f"{_MODE} ▶️ <b>Bot cycle started</b>\n"
+        f"Mode: <b>{mode}</b>"
+        + (f" | ATM: {atm}" if atm else "")
+    )
+    _send(msg)
+
+
+def alert_eod_summary(pnl: float, peak_mtm: float, trades: int) -> None:
+    """End-of-day summary sent after force exit."""
+    emoji = "✅" if pnl >= 0 else "🔴"
+    msg   = (
+        f"{_MODE} {emoji} <b>EOD Summary</b>\n"
+        f"Final P&amp;L: ₹{pnl:,.0f}\n"
+        f"Peak MTM:    ₹{peak_mtm:,.0f}\n"
+        f"Trades used: {trades}"
+    )
     _send(msg)

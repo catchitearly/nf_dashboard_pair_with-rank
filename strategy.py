@@ -28,7 +28,7 @@ import notifier
 from config import (
     ENTRY_START_IST, ENTRY_CUTOFF_IST, FORCE_EXIT_IST,
     ADD_POSITION_IST, MAX_TRADES_PER_DAY, DAILY_LOSS_LIMIT,
-    STRIKE_STEP,
+    STRIKE_STEP, PAPER_TRADING,
 )
 
 log = logging.getLogger(__name__)
@@ -63,9 +63,11 @@ def run_cycle() -> None:
     now     = _ist_now()
     hm      = _ist_hm(now)
     now_str = now.strftime("%Y-%m-%d %H:%M:%S IST")
+    mode    = "PAPER TRADING" if PAPER_TRADING else "LIVE TRADING"
 
     log.info("=" * 60)
     log.info(f"Run at {now_str}")
+    log.info(f"Mode: {mode}")
 
     state = sm.load_state()
 
@@ -81,6 +83,7 @@ def run_cycle() -> None:
         mtm = pm.compute_mtm(state)
         pnl = pm.close_all_positions(state, reason="force_exit_1430")
         notifier.alert_exit("14:30 Force Exit", pnl, state.get("peak_mtm", 0))
+        notifier.alert_eod_summary(pnl, state.get("peak_mtm", 0), state.get("trade_count", 0))
         state["trade_count"] = state.get("trade_count", 0) + 1
         sm.save_state(state)
         log.info(f"Run complete.")
