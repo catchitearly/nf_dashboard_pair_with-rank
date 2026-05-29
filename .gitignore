@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Secrets — never commit
+.env.local
+secrets.json
+
+# Logs are committed intentionally (for debugging)
+# State is committed intentionally (for persistence)
+# Uncomment below to exclude them:
+# logs/
+# state/
