@@ -1,0 +1,7 @@
+2026-05-29 03:39:34,566 [INFO] main: ▶ main.py started
+2026-05-29 03:39:34,852 [INFO] strategy: ============================================================
+2026-05-29 03:39:34,852 [INFO] strategy: Run at 2026-05-29 09:09:34 IST
+2026-05-29 03:39:34,852 [INFO] state_manager: No state file found — fresh start.
+2026-05-29 03:39:35,204 [ERROR] fyers_data: Fyers auth failed: {'s': 'error', 'code': -8, 'message': 'Your token has expired. Please generate a token'}
+2026-05-29 03:39:35,205 [ERROR] strategy: Could not fetch spot price — aborting cycle.
+2026-05-29 03:39:35,848 [INFO] main: ✓ main.py finished
