@@ -70,3 +70,21 @@
 2026-05-29 04:28:16,740 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=0 upper_above=4 | lower_above=0 lower_below=4 | score=-10.5 label=very_bearish
 2026-05-29 04:28:16,740 [INFO] view_engine: Label pending (1/2): current=None pending=very_bearish
 2026-05-29 04:28:16,740 [INFO] main: ✓ main.py finished
+2026-05-29 04:38:40,634 [INFO] main: ▶ main.py started
+2026-05-29 04:38:41,490 [INFO] strategy: ============================================================
+2026-05-29 04:38:41,490 [INFO] strategy: Run at 2026-05-29 10:08:41 IST
+2026-05-29 04:38:41,490 [INFO] state_manager: State loaded successfully.
+2026-05-29 04:38:41,866 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-05-29 04:38:42,087 [INFO] fyers_data: Spot: 23945.55
+2026-05-29 04:38:42,546 [INFO] fyers_data: Straddle 23800: 11 bars
+2026-05-29 04:38:43,175 [INFO] fyers_data: Straddle 23700: 11 bars
+2026-05-29 04:38:43,632 [INFO] fyers_data: Straddle 23600: 11 bars
+2026-05-29 04:38:44,081 [INFO] fyers_data: Straddle 23500: 11 bars
+2026-05-29 04:38:44,540 [INFO] fyers_data: Straddle 23900: 11 bars
+2026-05-29 04:38:44,991 [INFO] fyers_data: Straddle 24000: 11 bars
+2026-05-29 04:38:45,435 [INFO] fyers_data: Straddle 24100: 11 bars
+2026-05-29 04:38:45,882 [INFO] fyers_data: Straddle 24200: 11 bars
+2026-05-29 04:38:46,330 [INFO] fyers_data: Straddle 24300: 11 bars
+2026-05-29 04:38:46,330 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-05-29 04:38:46,330 [INFO] view_engine: Label pending (1/2): current=None pending=very_bullish
+2026-05-29 04:38:46,330 [INFO] main: ✓ main.py finished
