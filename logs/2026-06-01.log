@@ -19,3 +19,34 @@
 2026-06-01 05:23:40,417 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
 2026-06-01 05:23:40,417 [INFO] view_engine: Label pending (1/2): current=None pending=very_bullish
 2026-06-01 05:23:40,417 [INFO] main: ✓ main.py finished
+2026-06-01 05:36:54,344 [INFO] main: ▶ main.py started
+2026-06-01 05:36:54,628 [INFO] strategy: ============================================================
+2026-06-01 05:36:54,629 [INFO] strategy: Run at 2026-06-01 11:06:54 IST
+2026-06-01 05:36:54,629 [INFO] strategy: Mode: PAPER TRADING
+2026-06-01 05:36:54,629 [INFO] state_manager: State loaded successfully.
+2026-06-01 05:36:54,973 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-06-01 05:36:55,188 [INFO] fyers_data: Spot: 23591.15
+2026-06-01 05:36:55,652 [INFO] fyers_data: Straddle 23500: 23 bars
+2026-06-01 05:36:56,094 [INFO] fyers_data: Straddle 23400: 23 bars
+2026-06-01 05:36:56,582 [INFO] fyers_data: Straddle 23300: 23 bars
+2026-06-01 05:36:57,056 [INFO] fyers_data: Straddle 23200: 23 bars
+2026-06-01 05:36:57,509 [INFO] fyers_data: Straddle 23600: 23 bars
+2026-06-01 05:36:57,970 [INFO] fyers_data: Straddle 23700: 23 bars
+2026-06-01 05:36:58,405 [INFO] fyers_data: Straddle 23800: 23 bars
+2026-06-01 05:36:58,862 [INFO] fyers_data: Straddle 23900: 23 bars
+2026-06-01 05:36:59,319 [INFO] fyers_data: Straddle 24000: 23 bars
+2026-06-01 05:36:59,319 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=2 lower_below=2 | score=+7.5 label=very_bullish
+2026-06-01 05:36:59,319 [INFO] view_engine: Label confirmed: None → very_bullish
+2026-06-01 05:36:59,319 [INFO] strategy: Entry signal: label=very_bullish score=+7.5
+2026-06-01 05:36:59,560 [INFO] fyers_data: Selected CE 23800 | delta=0.137 ltp=38.7 dist=200pts
+2026-06-01 05:36:59,773 [INFO] fyers_data: Selected PE 23400 | delta=0.144 ltp=30.0 dist=200pts
+2026-06-01 05:37:00,197 [INFO] position_manager: [PAPER] SELL NSE:NIFTY2660223800CE qty=300 fill=₹38.95
+2026-06-01 05:37:00,620 [INFO] position_manager: [PAPER] SELL NSE:NIFTY2660223400PE qty=600 fill=₹29.80
+2026-06-01 05:37:01,060 [INFO] position_manager: [PAPER] BUY NSE:NIFTY2660224100CE qty=75 fill=₹7.70
+2026-06-01 05:37:01,509 [INFO] position_manager: [PAPER] BUY NSE:NIFTY2660223100PE qty=150 fill=₹4.90
+2026-06-01 05:37:01,509 [INFO] position_manager: Entry | label=very_bullish CE 23800x4 d=0.125 PE 23400x8 d=0.125
+2026-06-01 05:37:02,084 [INFO] strategy: Entry done: label=very_bullish legs=4
+2026-06-01 05:37:02,084 [INFO] strategy: MTM P&L: ₹0
+2026-06-01 05:37:02,769 [INFO] dashboard_gen: Dashboard written → docs/index.html (10,765 bytes)
+2026-06-01 05:37:02,770 [INFO] strategy: Run complete.
+2026-06-01 05:37:02,770 [INFO] main: ✓ main.py finished
