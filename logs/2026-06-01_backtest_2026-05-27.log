@@ -1,0 +1,169 @@
+2026-06-01 05:40:52,659 [INFO] main: ▶ BACKTEST MODE — date=2026-05-27 atm=23900
+2026-06-01 05:40:52,994 [INFO] backtest_engine: 
+============================================================
+2026-06-01 05:40:52,995 [INFO] backtest_engine: BACKTEST: 2026-05-27
+2026-06-01 05:40:52,995 [INFO] backtest_engine: ============================================================
+2026-06-01 05:40:53,317 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-06-01 05:40:53,590 [INFO] fyers_data: 9:15 candle close: 23926.0
+2026-06-01 05:40:53,590 [INFO] backtest_engine: 9:15 close=23926.0 → ATM=23900
+2026-06-01 05:40:53,590 [INFO] backtest_engine: Fetching historical data for 2026-05-27 | ATM=23900
+2026-06-01 05:40:53,838 [INFO] backtest_engine: Index: 75 bars
+2026-06-01 05:40:54,322 [INFO] fyers_data: Straddle 23800: 75 bars
+2026-06-01 05:40:54,810 [INFO] fyers_data: Straddle 23700: 75 bars
+2026-06-01 05:40:55,294 [INFO] fyers_data: Straddle 23600: 75 bars
+2026-06-01 05:40:55,840 [INFO] fyers_data: Straddle 23500: 75 bars
+2026-06-01 05:40:56,370 [INFO] fyers_data: Straddle 23900: 75 bars
+2026-06-01 05:40:56,806 [INFO] fyers_data: Straddle 24000: 75 bars
+2026-06-01 05:40:57,318 [INFO] fyers_data: Straddle 24100: 75 bars
+2026-06-01 05:40:57,799 [INFO] fyers_data: Straddle 24200: 75 bars
+2026-06-01 05:40:58,333 [INFO] fyers_data: Straddle 24300: 75 bars
+2026-06-01 05:40:58,333 [INFO] backtest_engine: Fetched 9/9 straddle series
+2026-06-01 05:40:58,333 [INFO] backtest_engine: Fetching individual CE/PE candles for accurate MTM...
+2026-06-01 05:41:02,901 [INFO] backtest_engine: Timeline: 75 bars from 09:15 to 15:25
+2026-06-01 05:41:02,902 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,903 [INFO] dashboard_gen: Dashboard written → docs/index.html (7,414 bytes)
+2026-06-01 05:41:02,903 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,903 [INFO] backtest_engine: [09:20] Label confirmed: very_bullish
+2026-06-01 05:41:02,903 [INFO] dashboard_gen: Dashboard written → docs/index.html (7,572 bytes)
+2026-06-01 05:41:02,903 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=3 upper_above=1 | lower_above=0 lower_below=4 | score=-1.5 label=neutral
+2026-06-01 05:41:02,904 [INFO] dashboard_gen: Dashboard written → docs/index.html (7,858 bytes)
+2026-06-01 05:41:02,904 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,904 [INFO] dashboard_gen: Dashboard written → docs/index.html (8,078 bytes)
+2026-06-01 05:41:02,904 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,904 [INFO] backtest_engine: [09:35] Label confirmed: bearish
+2026-06-01 05:41:02,905 [INFO] dashboard_gen: Dashboard written → docs/index.html (8,222 bytes)
+2026-06-01 05:41:02,905 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,905 [INFO] dashboard_gen: Dashboard written → docs/index.html (8,508 bytes)
+2026-06-01 05:41:02,905 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=3 upper_above=1 | lower_above=0 lower_below=4 | score=-1.5 label=neutral
+2026-06-01 05:41:02,905 [INFO] backtest_engine: [09:45] Label confirmed: neutral
+2026-06-01 05:41:02,920 [INFO] backtest_engine: [BT EVENT] ENTRY        09:45 | label=neutral score=-1.5 spot=₹23890 CE24400×6 PE23400×6
+2026-06-01 05:41:02,920 [INFO] dashboard_gen: Dashboard written → docs/index.html (12,524 bytes)
+2026-06-01 05:41:02,921 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,921 [INFO] dashboard_gen: Dashboard written → docs/index.html (12,810 bytes)
+2026-06-01 05:41:02,921 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,921 [INFO] backtest_engine: [09:55] Label confirmed: bearish
+2026-06-01 05:41:02,921 [INFO] backtest_engine: Rebalance: closed 2 PE sell lots
+2026-06-01 05:41:02,921 [INFO] backtest_engine: [BT EVENT] REBALANCE    09:55 | neutral → bearish score=-3.5
+2026-06-01 05:41:02,922 [INFO] dashboard_gen: Dashboard written → docs/index.html (12,789 bytes)
+2026-06-01 05:41:02,922 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=1 lower_below=3 | score=+4.5 label=bullish
+2026-06-01 05:41:02,922 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,075 bytes)
+2026-06-01 05:41:02,923 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,923 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,300 bytes)
+2026-06-01 05:41:02,923 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,923 [INFO] backtest_engine: [10:10] Label confirmed: very_bullish
+2026-06-01 05:41:02,923 [INFO] backtest_engine: Rebalance: closed 2 CE sell lots
+2026-06-01 05:41:02,923 [INFO] backtest_engine: [BT EVENT] REBALANCE    10:10 | neutral → very_bullish score=+9.5
+2026-06-01 05:41:02,924 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,285 bytes)
+2026-06-01 05:41:02,924 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,924 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,506 bytes)
+2026-06-01 05:41:02,925 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,925 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,726 bytes)
+2026-06-01 05:41:02,925 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,926 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,946 bytes)
+2026-06-01 05:41:02,926 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,926 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,479 bytes)
+2026-06-01 05:41:02,927 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,927 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,699 bytes)
+2026-06-01 05:41:02,927 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,928 [INFO] dashboard_gen: Dashboard written → docs/index.html (13,832 bytes)
+2026-06-01 05:41:02,928 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,929 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,052 bytes)
+2026-06-01 05:41:02,929 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,929 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,187 bytes)
+2026-06-01 05:41:02,930 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,930 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,407 bytes)
+2026-06-01 05:41:02,930 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,931 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,540 bytes)
+2026-06-01 05:41:02,931 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,932 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,757 bytes)
+2026-06-01 05:41:02,932 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,932 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,548 bytes)
+2026-06-01 05:41:02,932 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,933 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,768 bytes)
+2026-06-01 05:41:02,933 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,934 [INFO] dashboard_gen: Dashboard written → docs/index.html (14,902 bytes)
+2026-06-01 05:41:02,934 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,934 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,036 bytes)
+2026-06-01 05:41:02,935 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=4 lower_below=0 | score=+11.5 label=very_bullish
+2026-06-01 05:41:02,935 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,256 bytes)
+2026-06-01 05:41:02,935 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,936 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,389 bytes)
+2026-06-01 05:41:02,936 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,937 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,523 bytes)
+2026-06-01 05:41:02,937 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=3 lower_below=1 | score=+9.5 label=very_bullish
+2026-06-01 05:41:02,938 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,743 bytes)
+2026-06-01 05:41:02,938 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=1 lower_below=3 | score=+4.5 label=bullish
+2026-06-01 05:41:02,938 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,685 bytes)
+2026-06-01 05:41:02,939 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,939 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,905 bytes)
+2026-06-01 05:41:02,939 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,939 [INFO] backtest_engine: [12:00] Label confirmed: neutral
+2026-06-01 05:41:02,940 [INFO] dashboard_gen: Dashboard written → docs/index.html (15,960 bytes)
+2026-06-01 05:41:02,940 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,941 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,094 bytes)
+2026-06-01 05:41:02,941 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,942 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,228 bytes)
+2026-06-01 05:41:02,942 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,942 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,448 bytes)
+2026-06-01 05:41:02,943 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,943 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,582 bytes)
+2026-06-01 05:41:02,944 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,944 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,782 bytes)
+2026-06-01 05:41:02,944 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,944 [INFO] backtest_engine: [12:30] Label confirmed: bearish
+2026-06-01 05:41:02,945 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,678 bytes)
+2026-06-01 05:41:02,945 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,946 [INFO] dashboard_gen: Dashboard written → docs/index.html (16,964 bytes)
+2026-06-01 05:41:02,946 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,946 [INFO] backtest_engine: [12:40] Label confirmed: neutral
+2026-06-01 05:41:02,946 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,032 bytes)
+2026-06-01 05:41:02,947 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,947 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,166 bytes)
+2026-06-01 05:41:02,948 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,948 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,366 bytes)
+2026-06-01 05:41:02,948 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,949 [INFO] backtest_engine: [12:55] Label confirmed: bearish
+2026-06-01 05:41:02,949 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,431 bytes)
+2026-06-01 05:41:02,949 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,950 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,651 bytes)
+2026-06-01 05:41:02,950 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,951 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,785 bytes)
+2026-06-01 05:41:02,951 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,952 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,747 bytes)
+2026-06-01 05:41:02,952 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,953 [INFO] dashboard_gen: Dashboard written → docs/index.html (17,967 bytes)
+2026-06-01 05:41:02,953 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,954 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,101 bytes)
+2026-06-01 05:41:02,955 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,955 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,235 bytes)
+2026-06-01 05:41:02,956 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,956 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,369 bytes)
+2026-06-01 05:41:02,956 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,957 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,503 bytes)
+2026-06-01 05:41:02,957 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,958 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,637 bytes)
+2026-06-01 05:41:02,958 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,959 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,857 bytes)
+2026-06-01 05:41:02,959 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=3 upper_above=1 | lower_above=0 lower_below=4 | score=-1.5 label=neutral
+2026-06-01 05:41:02,960 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,882 bytes)
+2026-06-01 05:41:02,960 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,960 [INFO] backtest_engine: [13:55] Label confirmed: neutral
+2026-06-01 05:41:02,961 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,036 bytes)
+2026-06-01 05:41:02,961 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,962 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,170 bytes)
+2026-06-01 05:41:02,962 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,963 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,304 bytes)
+2026-06-01 05:41:02,963 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,964 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,504 bytes)
+2026-06-01 05:41:02,964 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=2 upper_above=2 | lower_above=0 lower_below=4 | score=-3.5 label=bearish
+2026-06-01 05:41:02,964 [INFO] backtest_engine: [14:15] Label confirmed: bearish
+2026-06-01 05:41:02,965 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,572 bytes)
+2026-06-01 05:41:02,965 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=4 upper_above=0 | lower_above=0 lower_below=4 | score=+0.5 label=neutral
+2026-06-01 05:41:02,966 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,772 bytes)
+2026-06-01 05:41:02,966 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,966 [INFO] dashboard_gen: Dashboard written → docs/index.html (19,840 bytes)
+2026-06-01 05:41:02,967 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=1 upper_above=3 | lower_above=0 lower_below=4 | score=-6.5 label=bearish
+2026-06-01 05:41:02,967 [INFO] backtest_engine: [BT EVENT] EXIT         14:30 | 14:30 force exit | pnl=₹0
+2026-06-01 05:41:02,967 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,395 bytes)
+2026-06-01 05:41:02,968 [INFO] dashboard_gen: Dashboard written → docs/index.html (18,395 bytes)
+2026-06-01 05:41:02,968 [INFO] backtest_engine: Backtest complete | P&L=₹0 | peak=₹0 | exit=force_exit_1430
