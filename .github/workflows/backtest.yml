@@ -1,17 +1,22 @@
 # ============================================================
 # backtest.yml
-# Manual-only workflow to run the backtester.
+# Fetches real Fyers 5-min historical data for the given date
+# and runs the full strategy bar-by-bar — same logic as live.
 #
 # Inputs:
-#   date      - YYYY-MM-DD to backtest a single day, or
-#               "all" to run all available historical dates
+#   date  : YYYY-MM-DD to backtest
+#   atm   : override ATM strike (optional — auto from 9:15 close if blank)
 #
-# No secrets needed — backtest uses only local historical data.
-# Results are printed to the job log AND uploaded as artifact.
+# Outputs:
+#   - Full P&L report printed to job log
+#   - docs/index.html updated with BACKTEST dashboard
+#   - backtest_results.txt uploaded as artifact
 #
-# Usage:
-#   GitHub → Actions → Backtest → Run workflow
-#   Fill in date: "2026-05-25" or "all"
+# SECRETS REQUIRED (same as live trading — needs real Fyers data):
+#   FYERS_CLIENT_ID
+#   FYERS_ACCESS_TOKEN
+#   TELEGRAM_BOT_TOKEN  (optional — alerts during backtest)
+#   TELEGRAM_CHAT_ID    (optional)
 # ============================================================
 
 name: Backtest
@@ -20,70 +25,114 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: 'Date to backtest (YYYY-MM-DD) or "all" for all dates'
+        description: 'Date to backtest (YYYY-MM-DD)'
         required: true
-        default: 'all'
-      verbose:
-        description: 'Show full tick-by-tick log (true/false)'
+        default: ''
+      atm:
+        description: 'Override ATM strike (optional, e.g. 24000 — leave blank for auto)'
         required: false
-        default: 'false'
+        default: ''
+
+concurrency:
+  group: backtest-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backtest:
-    name: Run backtest — ${{ github.event.inputs.date }}
+    name: Backtest ${{ github.event.inputs.date }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    permissions:
+      contents: write
 
     steps:
-      # ── 1. Checkout ───────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      # ── 2. Python ─────────────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      # ── 3. Dependencies ───────────────────────────────────
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # ── 4. Run backtest ───────────────────────────────────
+      # ── Run backtest ───────────────────────────────────────
       - name: Run backtest
-        id: backtest
         env:
-          BACKTEST_VERBOSE: ${{ github.event.inputs.verbose }}
+          FYERS_CLIENT_ID:    ${{ secrets.FYERS_CLIENT_ID }}
+          FYERS_ACCESS_TOKEN: ${{ secrets.FYERS_ACCESS_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           DATE="${{ github.event.inputs.date }}"
-          if [ "$DATE" = "all" ]; then
-            python main.py --backtest 2>&1 | tee backtest_results.txt
-          else
-            python main.py --backtest --date "$DATE" 2>&1 | tee backtest_results.txt
+          ATM="${{ github.event.inputs.atm }}"
+
+          if [ -z "$DATE" ]; then
+            echo "ERROR: date input is required"
+            exit 1
           fi
 
-      # ── 5. Print summary to job summary ───────────────────
+          # Build command — add --atm only if provided
+          CMD="python main.py --backtest --date $DATE"
+          if [ -n "$ATM" ]; then
+            CMD="$CMD --atm $ATM"
+          fi
+
+          echo "Running: $CMD"
+          $CMD 2>&1 | tee backtest_results.txt
+
+      # ── Write GitHub Actions job summary ──────────────────
       - name: Write job summary
         if: always()
         run: |
-          echo '## Backtest Results — `${{ github.event.inputs.date }}`' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          # Extract just the summary table (lines with ===, dates, TOTAL)
-          grep -E '(={3,}|Date|TOTAL|2026-|Strategy|Entry|Peak|Exit|Events|RESULT|\[)' \
-            backtest_results.txt >> $GITHUB_STEP_SUMMARY || \
-          cat backtest_results.txt >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Backtest — \`${{ github.event.inputs.date }}\`"
+            echo ""
+            echo '```'
+            grep -E "(=====|BACKTEST|Entry|Exit|Peak|P&L|Events|\[|ERROR|TOTAL)" \
+              backtest_results.txt 2>/dev/null | head -60 \
+              || cat backtest_results.txt | head -60
+            echo '```'
+            echo ""
+            echo "**Dashboard:** Updated at \`docs/index.html\` (GitHub Pages)"
+          } >> $GITHUB_STEP_SUMMARY
 
-      # ── 6. Upload full results ────────────────────────────
+      # ── Commit dashboard back to repo ─────────────────────
+      # The backtest writes docs/index.html with BACKTEST label —
+      # commit it so GitHub Pages serves the latest backtest view.
+      - name: Commit backtest dashboard
+        if: always()
+        run: |
+          git config user.name  "trading-bot[bot]"
+          git config user.email "trading-bot@noreply.github.com"
+          git add docs/ logs/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No dashboard changes to commit."
+            exit 0
+          fi
+          git commit -m "backtest: ${{ github.event.inputs.date }} run #${{ github.run_number }} [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin ${{ github.ref_name }} 2>/dev/null || true
+            git push origin ${{ github.ref_name }} && \
+              echo "✓ Push succeeded (attempt $attempt)" && break || \
+              { echo "Push failed (attempt $attempt)"; sleep $((attempt * 3)); }
+          done
+
+      # ── Upload results as artifact ─────────────────────────
       - name: Upload backtest results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backtest-${{ github.event.inputs.date }}-${{ github.run_number }}
-          path: backtest_results.txt
+          name: backtest-${{ github.event.inputs.date }}-run${{ github.run_number }}
+          path: |
+            backtest_results.txt
+            docs/index.html
+            logs/
           retention-days: 30
           if-no-files-found: ignore

@@ -3,34 +3,36 @@
 # Runs the trading bot every 5 minutes on weekdays during
 # market hours (09:40–14:35 IST).
 #
-# STATE PERSISTENCE:
-#   After each run, state/trading_state.json and logs/ are
-#   git-committed back to the repo. The next run checks out
-#   the latest commit, so it always reads the freshest state.
+# After each run:
+#   1. state/trading_state.json is committed back (persistence)
+#   2. docs/index.html is committed back (GitHub Pages dashboard)
+#   3. logs/ are committed back (audit trail)
 #
-# RACE CONDITION GUARD:
-#   concurrency.cancel-in-progress: false  — if a run is
-#   already executing, the new trigger is QUEUED (not dropped)
-#   so no tick is ever skipped.
-#   The push step does git pull --rebase before pushing to
-#   handle the case where two runs committed simultaneously.
+# GitHub Pages setup (one-time):
+#   Repo Settings → Pages → Source: "Deploy from branch"
+#   Branch: main  Folder: /docs
+#   Dashboard URL: https://<username>.github.io/<repo>/
 #
-# SECRETS REQUIRED (Settings → Secrets → Actions):
+# SECRETS REQUIRED:
 #   FYERS_CLIENT_ID       Fyers app client ID
-#   FYERS_ACCESS_TOKEN    Daily access token (update each morning)
+#   FYERS_ACCESS_TOKEN    Daily access token (auto-refreshed by token_refresh.yml)
 #   TELEGRAM_BOT_TOKEN    From @BotFather
 #   TELEGRAM_CHAT_ID      Your chat or channel ID
+#   GH_PAT (optional)     PAT for pushing to protected branches
 # ============================================================
 
 name: Live Trading
 
 on:
-  # ── Scheduled runs ───────────────────────────────────────
-  # Every 5 min, Mon–Fri, 09:40–14:35 IST
-  # IST = UTC+5:30  →  09:40 IST = 04:10 UTC  |  14:35 IST = 09:05 UTC
-                                   # 14:30–14:35 IST (force exit window)
+  schedule:
+    # Every 5 min Mon–Fri 09:40–14:35 IST (IST = UTC+5:30)
+    - cron: '10,15,20,25,30,35,40,45,50,55 4 * * 1-5'   # 09:40–09:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 5 * * 1-5'  # 10:00–10:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 6 * * 1-5'  # 11:00–11:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 7 * * 1-5'  # 12:00–12:55 IST
+    - cron: '0,5,10,15,20,25,30,35,40,45,50,55 8 * * 1-5'  # 13:00–13:55 IST
+    - cron: '0,5 9 * * 1-5'                                  # 14:30–14:35 IST
 
-  # ── Manual trigger ────────────────────────────────────────
   workflow_dispatch:
     inputs:
       reason:
@@ -38,10 +40,7 @@ on:
         required: false
         default: 'manual'
 
-# ── Concurrency guard ─────────────────────────────────────
-# Only one live-trading job runs at a time per day.
-# If a new trigger arrives while one is running, it WAITS
-# (cancel-in-progress: false) — we never want to drop a tick.
+# Only one live-trading job at a time — queue, never cancel
 concurrency:
   group: live-trading-${{ github.ref }}
   cancel-in-progress: false
@@ -50,35 +49,34 @@ jobs:
   trade:
     name: Run trading cycle
     runs-on: ubuntu-latest
-    timeout-minutes: 4          # hard kill after 4 min — each cycle should take < 60s
+    timeout-minutes: 4
 
     permissions:
-      contents: write           # needed to git-push state back
+      contents: write
+      pages:    write
+      id-token: write
 
     steps:
-      # ── 1. Checkout latest state ──────────────────────────
+      # ── 1. Checkout with full write access ───────────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          # Use PAT if available (allows pushing back to protected branches).
-          # Falls back to GITHUB_TOKEN for public/unprotected repos.
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      # ── 2. Python ─────────────────────────────────────────
+      # ── 2. Python setup ───────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      # ── 3. Dependencies ───────────────────────────────────
+      # ── 3. Install dependencies ───────────────────────────
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       # ── 4. Run one trading cycle ──────────────────────────
       - name: Run trading cycle
-        id: trading
         env:
           FYERS_CLIENT_ID:    ${{ secrets.FYERS_CLIENT_ID }}
           FYERS_ACCESS_TOKEN: ${{ secrets.FYERS_ACCESS_TOKEN }}
@@ -86,32 +84,31 @@ jobs:
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python main.py
 
-      # ── 5. Commit state + logs back to repo ───────────────
-      # Runs even if the trading step fails — we always want
-      # the latest state (including any partial writes) saved.
-      - name: Commit state and logs
+      # ── 5. Commit state, dashboard, and logs back ─────────
+      # Always runs — we always want latest state saved even if bot errored
+      - name: Commit state and dashboard
         if: always()
         run: |
           git config user.name  "trading-bot[bot]"
           git config user.email "trading-bot@noreply.github.com"
 
-          git add state/ logs/ 2>/dev/null || true
+          # Stage all outputs
+          git add state/ docs/ logs/ 2>/dev/null || true
 
-          # Nothing changed → skip commit
+          # Skip commit if nothing changed
           if git diff --cached --quiet; then
-            echo "No state changes to commit."
+            echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "state: run #${{ github.run_number }} $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+          git commit -m "bot: run #${{ github.run_number }} $(date -u +'%H:%M UTC') [skip ci]"
 
-          # Pull --rebase handles the case where another run pushed
-          # between our checkout and now. Retry up to 3 times.
+          # Retry push with rebase to handle concurrent runs
           for attempt in 1 2 3; do
-            git pull --rebase origin ${{ github.ref_name }} && \
+            git pull --rebase origin ${{ github.ref_name }} 2>/dev/null || true
             git push origin ${{ github.ref_name }} && \
-            echo "Push succeeded on attempt $attempt." && break || \
-            echo "Push failed (attempt $attempt), retrying in 5s..." && sleep 5
+              echo "✓ Push succeeded (attempt $attempt)" && break || \
+              { echo "Push failed (attempt $attempt), retrying..."; sleep $((attempt * 3)); }
           done
 
       # ── 6. Upload logs as artifact ────────────────────────
