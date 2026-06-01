@@ -20,7 +20,7 @@ EXPIRY_DATE   = "02-06-2026"
 EXPIRY_STR    = "26602"        # Format used in Fyers option symbols
 INTERVAL      = "5"            # 5-minute candles
 STRIKE_STEP   = 100
-LOT_SIZE      = 65             # Nifty lot size
+LOT_SIZE      = 75             # Nifty lot size
 
 # ── View engine ────────────────────────────────────────────────────────────
 # How many strikes above and below ATM to watch

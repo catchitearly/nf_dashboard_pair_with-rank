@@ -64,24 +64,28 @@ def option_symbol(strike: int, opt_type: str) -> str:
 
 # ── Candle fetcher ──────────────────────────────────────────────────────────
 
-def _fetch_candles_raw(symbol: str) -> list | None:
-    """Fetch today's 5-min candles via SDK. Returns raw [[epoch,...]] or None."""
+def _fetch_candles_raw(symbol: str, date_str: str | None = None) -> list | None:
+    """
+    Fetch 5-min candles via SDK for a given date (defaults to today).
+    date_str: "YYYY-MM-DD"  — pass for historical / backtest fetches.
+    Returns raw [[epoch,...]] or None.
+    """
     try:
         fyers = get_fyers()
         if fyers is None:
             return None
-        today   = date.today().strftime("%Y-%m-%d")
+        fetch_date = date_str or date.today().strftime("%Y-%m-%d")
         payload = {
             "symbol":      symbol,
             "resolution":  INTERVAL,
             "date_format": "1",
-            "range_from":  today,
-            "range_to":    today,
+            "range_from":  fetch_date,
+            "range_to":    fetch_date,
             "cont_flag":   "1",
         }
         resp = fyers.history(data=payload)
         if resp.get("s") != "ok" or not resp.get("candles"):
-            log.warning(f"No candles for {symbol}: {resp.get('message', '')}")
+            log.warning(f"No candles for {symbol} on {fetch_date}: {resp.get('message', '')}")
             return None
         return resp["candles"]
     except Exception as e:
@@ -89,10 +93,10 @@ def _fetch_candles_raw(symbol: str) -> list | None:
         return None
 
 
-def get_candles(symbol: str) -> list[dict] | None:
-    """Return today's 5-min candles as list of {ts,open,high,low,close,volume}."""
+def get_candles(symbol: str, date_str: str | None = None) -> list[dict] | None:
+    """Return 5-min candles as list of {ts,open,high,low,close,volume}."""
     try:
-        raw = _fetch_candles_raw(symbol)
+        raw = _fetch_candles_raw(symbol, date_str)
         if not raw:
             return None
         return [
@@ -105,10 +109,10 @@ def get_candles(symbol: str) -> list[dict] | None:
         return None
 
 
-def get_915_candle_close() -> float | None:
-    """Return 9:15 candle close for Nifty index (first candle of today)."""
+def get_915_candle_close(date_str: str | None = None) -> float | None:
+    """Return 9:15 candle close for Nifty index (first candle of the day)."""
     try:
-        raw = _fetch_candles_raw(INDEX_SYMBOL)
+        raw = _fetch_candles_raw(INDEX_SYMBOL, date_str)
         if not raw:
             return None
         close = float(raw[0][4])
@@ -194,13 +198,14 @@ def get_option_quote(strike: int, opt_type: str) -> dict | None:
 
 # ── Straddle candles ────────────────────────────────────────────────────────
 
-def get_straddle_candles(strike: int) -> list[dict] | None:
+def get_straddle_candles(strike: int, date_str: str | None = None) -> list[dict] | None:
     """
     Fetch CE+PE candles and return combined straddle candles aligned by timestamp.
+    date_str: "YYYY-MM-DD" for historical fetch, None for today.
     """
     try:
-        ce_raw = _fetch_candles_raw(option_symbol(strike, "CE"))
-        pe_raw = _fetch_candles_raw(option_symbol(strike, "PE"))
+        ce_raw = _fetch_candles_raw(option_symbol(strike, "CE"), date_str)
+        pe_raw = _fetch_candles_raw(option_symbol(strike, "PE"), date_str)
 
         if not ce_raw or not pe_raw:
             log.warning(f"Missing candles for straddle {strike}")
@@ -232,11 +237,11 @@ def get_straddle_candles(strike: int) -> list[dict] | None:
         return None
 
 
-def get_all_straddle_candles(atm: int) -> dict[int, list[dict]] | None:
+def get_all_straddle_candles(atm: int, date_str: str | None = None) -> dict[int, list[dict]] | None:
     """
-    Fetch straddle candles for all 9 strikes in ONE batch of API calls.
+    Fetch straddle candles for all 9 strikes.
     Returns {strike: candles_list} or None if majority fail.
-    Upper: ATM+100..ATM+400, Lower: ATM-100..ATM-400, plus ATM itself.
+    date_str: "YYYY-MM-DD" for historical, None for today.
     """
     from config import N_UPPER_STRIKES, N_LOWER_STRIKES
     strikes = (
@@ -248,7 +253,7 @@ def get_all_straddle_candles(atm: int) -> dict[int, list[dict]] | None:
     result = {}
     failed = 0
     for strike in strikes:
-        candles = get_straddle_candles(strike)
+        candles = get_straddle_candles(strike, date_str)
         if candles:
             result[strike] = candles
         else:
@@ -260,6 +265,14 @@ def get_all_straddle_candles(atm: int) -> dict[int, list[dict]] | None:
         return None
 
     return result
+
+
+def get_index_candles(date_str: str | None = None) -> list[dict] | None:
+    """
+    Return full day 5-min candles for Nifty index.
+    Used by backtest to get bar-by-bar spot prices.
+    """
+    return get_candles(INDEX_SYMBOL, date_str)
 
 
 # ── Black-Scholes delta ─────────────────────────────────────────────────────

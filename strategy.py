@@ -82,9 +82,18 @@ def run_cycle() -> None:
         log.info(f"Force exit at {now.strftime('%H:%M')} IST")
         mtm = pm.compute_mtm(state)
         pnl = pm.close_all_positions(state, reason="force_exit_1430")
+        sm.append_event(state, now.strftime("%H:%M"), "EXIT",
+                        f"14:30 force exit | pnl=₹{pnl:,.0f}")
         notifier.alert_exit("14:30 Force Exit", pnl, state.get("peak_mtm", 0))
         notifier.alert_eod_summary(pnl, state.get("peak_mtm", 0), state.get("trade_count", 0))
         state["trade_count"] = state.get("trade_count", 0) + 1
+        state["last_updated"] = now.strftime("%Y-%m-%d %H:%M:%S IST")
+        state["mode"] = "PAPER" if PAPER_TRADING else "LIVE"
+        try:
+            import dashboard_gen
+            dashboard_gen.write_dashboard(state, pnl, {})
+        except Exception as e:
+            log.error(f"Dashboard error: {e}")
         sm.save_state(state)
         log.info(f"Run complete.")
         return
@@ -158,7 +167,14 @@ def run_cycle() -> None:
         log.warning(f"Daily loss limit hit: MTM={mtm:.0f}")
         pnl = pm.close_all_positions(state, reason="daily_loss_limit")
         state["daily_stopped"] = True
+        sm.append_event(state, now.strftime("%H:%M"), "DAILY_STOP",
+                        f"MTM=₹{mtm:,.0f} hit limit ₹{DAILY_LOSS_LIMIT:,}")
         notifier.alert_daily_loss_limit(mtm)
+        try:
+            import dashboard_gen
+            dashboard_gen.write_dashboard(state, mtm, {})
+        except Exception as e:
+            log.error(f"Dashboard error: {e}")
         sm.save_state(state)
         return
 
@@ -167,8 +183,15 @@ def run_cycle() -> None:
         floor = state.get("profit_floor")
         log.info(f"Profit floor breached: MTM={mtm:.0f} < floor={floor:.0f} → EXIT")
         notifier.alert_profit_floor_hit(mtm, floor)
+        sm.append_event(state, now.strftime("%H:%M"), "EXIT",
+                        f"profit floor ₹{floor:,.0f} breached | MTM=₹{mtm:,.0f}")
         pnl = pm.close_all_positions(state, reason="profit_floor_exit")
         state["trade_count"] = state.get("trade_count", 0) + 1
+        try:
+            import dashboard_gen
+            dashboard_gen.write_dashboard(state, mtm, {})
+        except Exception as e:
+            log.error(f"Dashboard error: {e}")
         sm.save_state(state)
         log.info("Run complete.")
         return
@@ -178,12 +201,14 @@ def run_cycle() -> None:
     if (
         entry_label
         and state.get("positions")
-        and confirmed_label  # only act on newly confirmed labels
+        and confirmed_label
         and ve.score_emergency_exit(entry_label, score)
     ):
         risky_type = "CE" if entry_label in ("bullish", "very_bullish") else "PE"
         log.warning(f"Emergency exit: entry={entry_label} score={score:+.1f}")
         notifier.alert_emergency_exit(entry_label, score, risky_type)
+        sm.append_event(state, now.strftime("%H:%M"), "EXIT",
+                        f"emergency {risky_type} leg | entry={entry_label} score={score:+.1f}")
         pm.close_risky_leg(state, entry_label)
         state["trade_count"] = state.get("trade_count", 0) + 1
         sm.save_state(state)
@@ -192,10 +217,10 @@ def run_cycle() -> None:
     # ── 12. Entry logic ──────────────────────────────────────────────────────
     if (
         not state.get("positions")
-        and not state.get("entry_label")           # not entered yet today
+        and not state.get("entry_label")
         and _hm_gte(hm, ENTRY_START_IST)
         and _hm_lte(hm, ENTRY_CUTOFF_IST)
-        and confirmed_label is not None            # freshly confirmed
+        and confirmed_label is not None
         and state.get("trade_count", 0) < MAX_TRADES_PER_DAY
     ):
         log.info(f"Entry signal: label={confirmed_label} score={score:+.1f}")
@@ -204,17 +229,18 @@ def run_cycle() -> None:
             state["entry_label"]  = confirmed_label
             state["entry_time"]   = now.strftime("%H:%M")
             state["trade_count"]  = state.get("trade_count", 0) + 1
-            # Notify entry
+            sm.append_event(state, now.strftime("%H:%M"), "ENTRY",
+                            f"label={confirmed_label} score={score:+.1f} spot=₹{spot:,.0f}")
             positions = state.get("positions", [])
-            ce_sell = next((l for l in positions if l["opt_type"]=="CE" and l["role"]=="sell"), {})
-            pe_sell = next((l for l in positions if l["opt_type"]=="PE" and l["role"]=="sell"), {})
+            ce_sell  = next((l for l in positions if l["opt_type"]=="CE" and l["role"]=="sell"),  {})
+            pe_sell  = next((l for l in positions if l["opt_type"]=="PE" and l["role"]=="sell"),  {})
             ce_hedge = next((l for l in positions if l["opt_type"]=="CE" and l["role"]=="hedge"), {})
             pe_hedge = next((l for l in positions if l["opt_type"]=="PE" and l["role"]=="hedge"), {})
             notifier.alert_entry(
                 confirmed_label,
-                ce_sell.get("strike", 0), ce_sell.get("lots", 0),
-                pe_sell.get("strike", 0), pe_sell.get("lots", 0),
-                ce_hedge.get("lots", 0), pe_hedge.get("lots", 0),
+                ce_sell.get("strike", 0),  ce_sell.get("lots", 0),
+                pe_sell.get("strike", 0),  pe_sell.get("lots", 0),
+                ce_hedge.get("lots", 0),   pe_hedge.get("lots", 0),
                 spot,
             )
             log.info(f"Entry done: label={confirmed_label} legs={len(positions)}")
@@ -231,24 +257,55 @@ def run_cycle() -> None:
         added = pm.add_position_1200(state, current_label, spot, atm, mtm)
         if added:
             notifier.alert_rebalance(entry_label or "?", current_label, score)
+            sm.append_event(state, now.strftime("%H:%M"), "ADD",
+                            f"label={current_label} score={score:+.1f}")
 
     # ── 14. Score-triggered rebalance ────────────────────────────────────────
     elif (
         state.get("positions")
         and entry_label
-        and confirmed_label is not None             # freshly confirmed new label
+        and confirmed_label is not None
         and confirmed_label != entry_label
-        and state.get("trade_count", 0) < MAX_TRADES_PER_DAY - 1  # reserve 1 for exit
-        and mtm >= 0                                # only rebalance from profit
+        and state.get("trade_count", 0) < MAX_TRADES_PER_DAY - 1
+        and mtm >= 0
     ):
         log.info(f"Score adj trigger | entry={entry_label} score={score:+.1f} → rebalance to {confirmed_label}")
         pm.rebalance_position(state, confirmed_label, spot, atm, mtm)
         notifier.alert_rebalance(entry_label, confirmed_label, score)
+        sm.append_event(state, now.strftime("%H:%M"), "REBALANCE",
+                        f"{entry_label} → {confirmed_label} score={score:+.1f}")
 
-    # ── Final: log MTM ───────────────────────────────────────────────────────
+    # ── 15. Update state metadata for dashboard ───────────────────────────────
+    time_str = now.strftime("%H:%M")
+    state["last_updated"] = now.strftime("%Y-%m-%d %H:%M:%S IST")
+    state["mode"]         = "PAPER" if PAPER_TRADING else "LIVE"
+    state["last_view"]    = {
+        "score":       score,
+        "label":       label,
+        "upper_above": view.get("upper_above", 0),
+        "upper_below": view.get("upper_below", 0),
+        "lower_above": view.get("lower_above", 0),
+        "lower_below": view.get("lower_below", 0),
+        "spot":        spot,
+    }
+    sm.append_score_history(state, time_str, score, label, mtm, spot)
+
+    # ── 16. Log MTM and send Telegram view update ─────────────────────────────
     if state.get("positions"):
         log.info(f"MTM P&L: ₹{mtm:,.0f}")
         notifier.alert_view(score, current_label, mtm)
+
+    # ── 17. Write dashboard ───────────────────────────────────────────────────
+    try:
+        import dashboard_gen
+        # Fetch fresh quotes for position LTP display
+        live_quotes = {}
+        if state.get("positions"):
+            syms = [p["symbol"] for p in state["positions"]]
+            live_quotes = fd.get_quotes_batch(syms) or {}
+        dashboard_gen.write_dashboard(state, mtm, live_quotes)
+    except Exception as e:
+        log.error(f"Dashboard generation error: {e}")
 
     sm.save_state(state)
     log.info("Run complete.")

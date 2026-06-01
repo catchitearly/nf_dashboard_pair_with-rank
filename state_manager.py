@@ -20,21 +20,27 @@ log = logging.getLogger(__name__)
 def _fresh_state() -> dict:
     return {
         "date":           str(date.today()),
-        "atm":            None,            # fixed at entry
-        "entry_label":    None,            # confirmed label at entry
-        "entry_time":     None,            # IST string "HH:MM"
-        "trade_count":    0,               # trades used today
-        "add_done":       False,           # 12:00 add already executed
-        "pending_label":  None,            # label waiting for confirmation
-        "pending_count":  0,               # how many consecutive times seen
-        "current_label":  None,            # last confirmed label
-        "peak_mtm":       0.0,             # highest MTM seen today
-        "profit_floor":   None,            # current profit lock floor
-        "daily_stopped":  False,           # daily loss limit hit
-        "positions":      [],              # list of leg dicts
-        "closed_pnl":     0.0,             # realised P&L from closed legs
-        "adj_count":      0,               # rebalance count today
-        "last_adj_time":  None,            # IST string of last rebalance
+        "atm":            None,
+        "entry_label":    None,
+        "entry_time":     None,
+        "trade_count":    0,
+        "add_done":       False,
+        "pending_label":  None,
+        "pending_count":  0,
+        "current_label":  None,
+        "peak_mtm":       0.0,
+        "profit_floor":   None,
+        "daily_stopped":  False,
+        "positions":      [],
+        "closed_pnl":     0.0,
+        "adj_count":      0,
+        "last_adj_time":  None,
+        # Dashboard fields
+        "score_history":  [],   # [{time, score, label, mtm, spot}]
+        "event_log":      [],   # [{time, event, detail}]
+        "last_view":      {},   # {score, label, upper_above, lower_above, spot}
+        "last_updated":   None, # IST string
+        "mode":           None, # "PAPER" or "LIVE"
     }
 
 
@@ -184,3 +190,24 @@ def is_profit_floor_breached(state: dict, current_mtm: float) -> bool:
     if floor is None:
         return False
     return current_mtm < floor
+
+
+def append_score_history(state: dict, time_str: str, score: float,
+                         label: str, mtm: float, spot: float) -> None:
+    """Append one tick to score_history. Keep last 80 ticks (full day)."""
+    history = state.setdefault("score_history", [])
+    history.append({
+        "time":  time_str,
+        "score": score,
+        "label": label,
+        "mtm":   round(mtm, 0),
+        "spot":  spot,
+    })
+    state["score_history"] = history[-80:]
+
+
+def append_event(state: dict, time_str: str, event: str, detail: str) -> None:
+    """Append to the event log shown in dashboard."""
+    log_ = state.setdefault("event_log", [])
+    log_.append({"time": time_str, "event": event, "detail": detail})
+    state["event_log"] = log_[-50:]   # keep last 50 events
