@@ -29,8 +29,7 @@ name: Token Refresh
 
 on:
   # Daily at 08:45 IST = 03:15 UTC
-  schedule:
-    - cron: '15 3 * * 1-5'     # Mon–Fri only
+  
 
   # Manual trigger (use when token has expired / first setup)
   workflow_dispatch:
