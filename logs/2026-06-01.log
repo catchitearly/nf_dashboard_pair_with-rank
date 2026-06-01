@@ -73,3 +73,34 @@
 2026-06-01 05:51:47,095 [INFO] dashboard_gen: Dashboard written → docs/index.html (11,649 bytes)
 2026-06-01 05:51:47,096 [INFO] strategy: Run complete.
 2026-06-01 05:51:47,096 [INFO] main: ✓ main.py finished
+2026-06-01 06:03:49,611 [INFO] main: ▶ main.py started
+2026-06-01 06:03:50,412 [INFO] strategy: ============================================================
+2026-06-01 06:03:50,412 [INFO] strategy: Run at 2026-06-01 11:33:50 IST
+2026-06-01 06:03:50,412 [INFO] strategy: Mode: PAPER TRADING
+2026-06-01 06:03:50,412 [INFO] state_manager: State loaded successfully.
+2026-06-01 06:03:50,772 [INFO] fyers_data: Fyers authenticated: SOURAVA KUMAR SETHY
+2026-06-01 06:03:51,034 [INFO] fyers_data: Spot: 23542.85
+2026-06-01 06:03:51,707 [INFO] fyers_data: Straddle 23500: 28 bars
+2026-06-01 06:03:52,235 [INFO] fyers_data: Straddle 23400: 28 bars
+2026-06-01 06:03:52,761 [INFO] fyers_data: Straddle 23300: 28 bars
+2026-06-01 06:03:53,291 [INFO] fyers_data: Straddle 23200: 28 bars
+2026-06-01 06:03:53,825 [INFO] fyers_data: Straddle 23600: 28 bars
+2026-06-01 06:03:54,362 [INFO] fyers_data: Straddle 23700: 28 bars
+2026-06-01 06:03:55,341 [INFO] fyers_data: Straddle 23800: 28 bars
+2026-06-01 06:03:55,867 [INFO] fyers_data: Straddle 23900: 28 bars
+2026-06-01 06:03:56,438 [INFO] fyers_data: Straddle 24000: 28 bars
+2026-06-01 06:03:56,438 [INFO] view_engine: View check | ATM below_vwap=True | upper_below=0 upper_above=4 | lower_above=0 lower_below=4 | score=-10.5 label=very_bearish
+2026-06-01 06:03:56,438 [INFO] view_engine: Label pending (1/2): current=very_bullish pending=very_bearish
+2026-06-01 06:03:56,699 [INFO] position_manager: MTM P&L: ₹-2,066
+2026-06-01 06:03:56,699 [WARNING] strategy: Daily loss limit hit: MTM=-2066
+2026-06-01 06:03:57,220 [INFO] position_manager: [PAPER] BUY NSE:NIFTY2660223800CE qty=300 fill=₹29.95
+2026-06-01 06:03:57,221 [INFO] position_manager: [PAPER] Closed sell NSE:NIFTY2660223800CE daily_loss_limit | lots=4 entry=₹38.95 exit=₹30.15 pnl=₹2640
+2026-06-01 06:03:57,734 [INFO] position_manager: [PAPER] BUY NSE:NIFTY2660223400PE qty=600 fill=₹37.85
+2026-06-01 06:03:57,734 [INFO] position_manager: [PAPER] Closed sell NSE:NIFTY2660223400PE daily_loss_limit | lots=8 entry=₹29.80 exit=₹37.95 pnl=₹-4890
+2026-06-01 06:03:58,248 [INFO] position_manager: [PAPER] SELL NSE:NIFTY2660224100CE qty=75 fill=₹6.65
+2026-06-01 06:03:58,248 [INFO] position_manager: [PAPER] Closed buy NSE:NIFTY2660224100CE daily_loss_limit | lots=1 entry=₹7.70 exit=₹6.65 pnl=₹-79
+2026-06-01 06:03:58,756 [INFO] position_manager: [PAPER] SELL NSE:NIFTY2660223100PE qty=150 fill=₹5.45
+2026-06-01 06:03:58,756 [INFO] position_manager: [PAPER] Closed buy NSE:NIFTY2660223100PE daily_loss_limit | lots=2 entry=₹4.90 exit=₹5.40 pnl=₹75
+2026-06-01 06:03:58,756 [INFO] position_manager: Closed all | reason=daily_loss_limit | P&L: ₹-2,254
+2026-06-01 06:03:59,474 [INFO] dashboard_gen: Dashboard written → docs/index.html (9,161 bytes)
+2026-06-01 06:03:59,474 [INFO] main: ✓ main.py finished

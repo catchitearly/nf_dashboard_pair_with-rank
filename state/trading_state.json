@@ -5,51 +5,14 @@
   "entry_time": "11:06",
   "trade_count": 1,
   "add_done": false,
-  "pending_label": null,
-  "pending_count": 0,
+  "pending_label": "very_bearish",
+  "pending_count": 1,
   "current_label": "very_bullish",
   "peak_mtm": 847.5,
   "profit_floor": 423.75,
-  "daily_stopped": false,
-  "positions": [
-    {
-      "symbol": "NSE:NIFTY2660223800CE",
-      "strike": 23800,
-      "opt_type": "CE",
-      "side": "sell",
-      "lots": 4,
-      "entry_ltp": 38.95,
-      "role": "sell"
-    },
-    {
-      "symbol": "NSE:NIFTY2660223400PE",
-      "strike": 23400,
-      "opt_type": "PE",
-      "side": "sell",
-      "lots": 8,
-      "entry_ltp": 29.8,
-      "role": "sell"
-    },
-    {
-      "symbol": "NSE:NIFTY2660224100CE",
-      "strike": 24100,
-      "opt_type": "CE",
-      "side": "buy",
-      "lots": 1,
-      "entry_ltp": 7.7,
-      "role": "hedge"
-    },
-    {
-      "symbol": "NSE:NIFTY2660223100PE",
-      "strike": 23100,
-      "opt_type": "PE",
-      "side": "buy",
-      "lots": 2,
-      "entry_ltp": 4.9,
-      "role": "hedge"
-    }
-  ],
-  "closed_pnl": 0.0,
+  "daily_stopped": true,
+  "positions": [],
+  "closed_pnl": -2253.7499999999995,
   "adj_count": 0,
   "last_adj_time": null,
   "event_log": [
@@ -57,6 +20,11 @@
       "time": "11:06",
       "event": "ENTRY",
       "detail": "label=very_bullish score=+7.5 spot=\u20b923,591"
+    },
+    {
+      "time": "11:33",
+      "event": "DAILY_STOP",
+      "detail": "MTM=\u20b9-2,066 hit limit \u20b9-1,000"
     }
   ],
   "last_updated": "2026-06-01 11:21:38 IST",
