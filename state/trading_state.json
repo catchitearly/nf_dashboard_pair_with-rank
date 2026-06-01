@@ -8,8 +8,8 @@
   "pending_label": null,
   "pending_count": 0,
   "current_label": "very_bullish",
-  "peak_mtm": 0.0,
-  "profit_floor": null,
+  "peak_mtm": 847.5,
+  "profit_floor": 423.75,
   "daily_stopped": false,
   "positions": [
     {
@@ -59,16 +59,16 @@
       "detail": "label=very_bullish score=+7.5 spot=\u20b923,591"
     }
   ],
-  "last_updated": "2026-06-01 11:06:54 IST",
+  "last_updated": "2026-06-01 11:21:38 IST",
   "mode": "PAPER",
   "last_view": {
-    "score": 7.5,
+    "score": 9.5,
     "label": "very_bullish",
     "upper_above": 0,
     "upper_below": 4,
-    "lower_above": 2,
-    "lower_below": 2,
-    "spot": 23591.15
+    "lower_above": 3,
+    "lower_below": 1,
+    "spot": 23593.75
   },
   "score_history": [
     {
@@ -77,6 +77,13 @@
       "label": "very_bullish",
       "mtm": 0.0,
       "spot": 23591.15
+    },
+    {
+      "time": "11:21",
+      "score": 9.5,
+      "label": "very_bullish",
+      "mtm": 848.0,
+      "spot": 23593.75
     }
   ]
 }
